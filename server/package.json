@@ -1,0 +1,27 @@
+{
+    "name": "anvatuyen-server",
+    "version": "1.0.0",
+    "description": "Backend API for Ăn Vặt Nhà Pu",
+    "main": "index.js",
+    "type": "commonjs",
+    "scripts": {
+        "start": "node index.js",
+        "dev": "nodemon index.js"
+    },
+    "dependencies": {
+        "axios": "^1.13.5",
+        "bcryptjs": "^2.4.3",
+        "compression": "^1.8.1",
+        "cors": "^2.8.6",
+        "dotenv": "^16.6.1",
+        "express": "^4.22.1",
+        "express-rate-limit": "^8.2.1",
+        "helmet": "^8.1.0",
+        "jsonwebtoken": "^9.0.2",
+        "multer": "^2.0.2",
+        "mysql2": "^3.18.0"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.0"
+    }
+}

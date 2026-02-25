@@ -1,0 +1,127 @@
+.cat-section {
+    background: var(--bg);
+}
+
+.cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 16px;
+}
+
+.cat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 24px 12px;
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.cat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--cat-color, var(--primary))11, var(--cat-color, var(--primary))05);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.cat-card:hover::before {
+    opacity: 1;
+}
+
+.cat-card:hover {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+    border-color: var(--cat-color, var(--primary));
+}
+
+.cat-card__shine {
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 80%;
+    height: 200%;
+    background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.6) 50%, transparent 60%);
+    transform: skewX(-15deg);
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+
+.cat-card:hover .cat-card__shine {
+    opacity: 1;
+    animation: shinePass 0.5s ease forwards;
+}
+
+@keyframes shinePass {
+    from {
+        left: -60%;
+    }
+
+    to {
+        left: 120%;
+    }
+}
+
+.cat-card__icon {
+    font-size: 2.4rem;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--cat-color, var(--primary))20, var(--cat-color, var(--primary))10);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cat-card:hover .cat-card__icon {
+    transform: scale(1.15) rotate(-8deg);
+}
+
+.cat-card__name {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    line-height: 1.2;
+    transition: color 0.2s;
+}
+
+.cat-card:hover .cat-card__name {
+    color: var(--cat-color, var(--primary));
+}
+
+@media (max-width: 600px) {
+    .cat-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    .cat-card {
+        padding: 16px 8px;
+        gap: 7px;
+    }
+
+    .cat-card__icon {
+        font-size: 1.8rem;
+        width: 46px;
+        height: 46px;
+    }
+
+    .cat-card__name {
+        font-size: 0.72rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .cat-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
