@@ -81,7 +81,12 @@ router.get('/orders/:id', async (req, res) => {
     try {
         const [orders] = await pool.query('SELECT * FROM orders WHERE id = ?', [req.params.id]);
         if (!orders.length) return res.status(404).json({ success: false, message: 'Không tìm thấy đơn' });
-        const [items] = await pool.query('SELECT * FROM order_items WHERE order_id = ?', [req.params.id]);
+        const [items] = await pool.query(`
+            SELECT oi.*, p.image_url AS product_image_url
+            FROM order_items oi
+            LEFT JOIN products p ON p.id = oi.product_id
+            WHERE oi.order_id = ?
+        `, [req.params.id]);
         res.json({ success: true, data: { ...orders[0], items } });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Lỗi server' });

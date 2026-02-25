@@ -13,20 +13,22 @@ const slides = [
         ctaLink: '/products',
         accent: 'Giao hàng siêu tốc · Miễn phí 200k+',
         emoji: ['🍿', '🍬', '🎂', '🥩', '🧋', '🌸', '🍊', '🍑'],
+        photo: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=480&q=85&auto=format&fit=crop',
         gradient: 'linear-gradient(135deg, #FF6B2B 0%, #FF4B6E 50%, #7C3AED 100%)',
         light: 'linear-gradient(135deg, #FFF5EE 0%, #FFE8F5 60%, #F0E8FF 100%)',
     },
     {
         id: 2,
-        tag: '💛 Đặc Sản Hà Nội',
-        title: 'Ô Mai &\nBánh Cốm',
-        subtitle: 'Hương vị truyền thống Hà Nội, nguyên liệu tự nhiên, làm thủ công',
+        tag: '🥩 Đặc Sản Miền Nam',
+        title: 'Đồ Khô &\nĐồ Sấy',
+        subtitle: 'Mực rim, khô bò, tôm khô, hải sản sấy... hương vị đậm đà, ăn là ghiền!',
         cta: 'Khám phá ngay',
-        ctaLink: '/products?cat=o-mai',
-        accent: 'Ô mai · Mận dẻo · Xí muội · Bánh cốm',
-        emoji: ['🌸', '🍑', '🍒', '🎍', '💐', '🌺', '🍡', '🫧'],
-        gradient: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 50%, #EC4899 100%)',
-        light: 'linear-gradient(135deg, #FFFBEB 0%, #FFF1F1 60%, #FDF2F8 100%)',
+        ctaLink: '/products?cat=do-kho',
+        accent: 'Khô bò · Mực rim · Tôm khô · Hải sản sấy',
+        emoji: ['🦑', '🐟', '🦐', '🦀', '🌶️', '🔥', '🧄', '🥩'],
+        photo: '/slide-dokho.png',
+        gradient: 'linear-gradient(135deg, #B45309 0%, #92400E 50%, #78350F 100%)',
+        light: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 60%, #FDE68A 100%)',
     },
     {
         id: 3,
@@ -37,10 +39,12 @@ const slides = [
         ctaLink: '/products?cat=healthy',
         accent: '100% Tự nhiên · Không chất bảo quản',
         emoji: ['🥗', '🍎', '🥦', '🌾', '🥕', '🍇', '🥝', '🫐'],
+        photo: '/slide-healthy.png',
         gradient: 'linear-gradient(135deg, #22C55E 0%, #16A34A 50%, #059669 100%)',
         light: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 60%, #D1FAE5 100%)',
     },
 ];
+
 
 export default function Hero() {
     const [current, setCurrent] = useState(0);
@@ -91,35 +95,26 @@ export default function Hero() {
                         </Link>
                     </div>
 
-                    {/* Stats */}
-                    <div className="hero-stats">
-                        {[
-                            { num: '1.200+', label: 'Sản phẩm' },
-                            { num: '50k+', label: 'Khách hàng' },
-                            { num: '4.9⭐', label: 'Đánh giá' },
-                        ].map((s, i) => (
-                            <div key={i} className="hero-stat">
-                                <span className="hero-stat-num">{s.num}</span>
-                                <span className="hero-stat-label">{s.label}</span>
-                            </div>
-                        ))}
-                    </div>
+
                 </div>
 
                 {/* Visual side */}
                 <div className={`hero-visual ${animating ? 'hero-visual--exit' : 'hero-visual--enter'}`}>
                     <div className="hero-blob" style={{ background: slide.gradient }}>
-                        <span className="hero-big-emoji">{slide.emoji[0]}</span>
+                        <img src={slide.photo} alt={slide.title} className="hero-blob-img" />
                     </div>
                     <div className="hero-floating-cards">
                         <div className="f-card f-card--1">
-                            <span>🚚</span> Giao nhanh 2h
+                            <img src="https://images.unsplash.com/photo-1526367790999-0150786686a2?w=40&h=40&fit=crop&q=90" alt="Giao nhanh" className="f-card-img" />
+                            Giao nhanh 2h
                         </div>
                         <div className="f-card f-card--2">
-                            <span>✅</span> Đảm bảo chất lượng
+                            <img src="https://images.unsplash.com/photo-1444418776041-9c7e33cc5a9c?w=40&h=40&fit=crop&q=90" alt="Chất lượng" className="f-card-img" />
+                            Đảm bảo chất lượng
                         </div>
                         <div className="f-card f-card--3">
-                            <span>🎁</span> Quà tặng kèm
+                            <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=40&h=40&fit=crop&q=90" alt="Quà tặng" className="f-card-img" />
+                            Quà tặng kèm
                         </div>
                     </div>
                 </div>

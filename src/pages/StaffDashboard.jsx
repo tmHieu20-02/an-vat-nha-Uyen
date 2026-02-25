@@ -240,7 +240,13 @@ function OrderModal({ order, onClose, onUpdate }) {
                         <tbody>
                             {items.map((item, i) => (
                                 <tr key={i}>
-                                    <td>{item.emoji} {item.product_name}</td>
+                                    <td style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                        {item.product_image_url
+                                            ? <img src={IMG_BASE + item.product_image_url} alt={item.product_name} style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 6, border: '1px solid #334155', flexShrink: 0 }} />
+                                            : <span style={{ fontSize: '1.4rem', width: 36, textAlign: 'center' }}>{item.emoji}</span>
+                                        }
+                                        {item.product_name}
+                                    </td>
                                     <td>{fmt(item.price)}</td>
                                     <td>{item.qty}</td>
                                     <td>{fmt(item.price * item.qty)}</td>
@@ -491,7 +497,7 @@ export default function StaffDashboard() {
                 {!loading && activeTab === 'products' && (
                     <div className="products-content">
                         <table className="orders-table">
-                            <thead><tr><th>Ảnh</th><th>Sản phẩm</th><th>Danh mục</th><th>Giá</th><th>Đã bán</th><th>⭐</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+                            <thead><tr><th>Ảnh</th><th>Sản phẩm</th><th>Danh mục</th><th>Giá</th><th>Đã bán</th><th>📦 Kho</th><th>⭐</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
                             <tbody>
                                 {products.map(p => (
                                     <tr key={p.id} className={!p.is_active ? 'row-inactive' : ''}>
@@ -508,6 +514,12 @@ export default function StaffDashboard() {
                                             {p.original_price && <><br /><del style={{ color: '#64748b', fontSize: 11 }}>{fmt(p.original_price)}</del></>}
                                         </td>
                                         <td>{p.sold?.toLocaleString()}</td>
+                                        <td style={{
+                                            fontWeight: 700,
+                                            color: p.stock === 0 ? '#ef4444' : p.stock > 0 && p.stock <= 10 ? '#f59e0b' : '#22c55e'
+                                        }}>
+                                            {p.stock === -1 ? '∞' : p.stock === 0 ? 'Hết' : p.stock}
+                                        </td>
                                         <td>{p.rating}</td>
                                         <td>
                                             <button className={`toggle-btn ${p.is_active ? 'active' : 'inactive'}`} onClick={() => toggleActive(p)}>

@@ -24,7 +24,7 @@ export const getProduct = (id) => apiFetch(`/products/${id}`);
 export const getCategories = () => apiFetch('/categories');
 
 // ── Testimonials ──────────────────────────────────────────────
-export const getTestimonials = () => apiFetch('/testimonials');
+export const getTestimonials = () => apiFetch('/reviews/recent');
 
 // ── Orders ────────────────────────────────────────────────────
 export const createOrder = (orderData) =>
@@ -51,6 +51,11 @@ export const getReviews = (productId, page = 1) =>
 
 export const postReview = (data) =>
     apiFetch('/reviews', { method: 'POST', body: JSON.stringify(data) });
+
+export const checkReviewed = (productId) =>
+    apiFetch(`/reviews/check?product_id=${productId}`);
+
+export const getMyReviews = () => apiFetch('/reviews/my-reviews');
 
 // ── Wishlist ──────────────────────────────────────────────────
 export const getWishlist = () => apiFetch('/wishlist');

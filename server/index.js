@@ -32,8 +32,8 @@ app.use(cors({
     credentials: true,
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // ── Rate limiting ─────────────────────────────────────────────
 // Toàn bộ API: 200 req / 1 phút
@@ -91,27 +91,54 @@ app.use((err, req, res, next) => {
     res.status(500).json({ success: false, message: err.message || 'Lỗi server không xác định' });
 });
 
+// ── Helper: thêm cột nếu chưa có (tương thích mọi phiên bản MySQL) ──
+async function addColumnIfMissing(table, column, definition) {
+    const [[{ cnt }]] = await pool.query(
+        `SELECT COUNT(*) AS cnt
+         FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+        [table, column]
+    );
+    if (cnt === 0) {
+        await pool.query(`ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` ${definition}`);
+        console.log(`  ✚ ${table}.${column} added`);
+    }
+}
+
+// ── Helper: tạo index nếu chưa có ────────────────────────────
+async function addIndexIfMissing(indexName, table, columns) {
+    const [[{ cnt }]] = await pool.query(
+        `SELECT COUNT(*) AS cnt
+         FROM INFORMATION_SCHEMA.STATISTICS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = ?`,
+        [table, indexName]
+    );
+    if (cnt === 0) {
+        await pool.query(`CREATE INDEX \`${indexName}\` ON \`${table}\`(${columns})`);
+        console.log(`  ✚ index ${indexName} added`);
+    }
+}
+
 // ── Auto migrate DB schema ────────────────────────────────────
 async function autoMigrate() {
-    const migrations = [
-        // users: thêm role staff
-        `ALTER TABLE users MODIFY COLUMN role ENUM('customer','staff','admin') NOT NULL DEFAULT 'customer'`,
-        // users: thêm address
-        `ALTER TABLE users ADD COLUMN IF NOT EXISTS address VARCHAR(500) NULL AFTER phone`,
-        // products: thêm image_url
-        `ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url VARCHAR(500) NULL AFTER color`,
-        // products: thêm stock (-1 = không giới hạn)
-        `ALTER TABLE products ADD COLUMN IF NOT EXISTS stock INT NOT NULL DEFAULT -1 AFTER image_url`,
-        // products: thêm updated_at
-        `ALTER TABLE products ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP`,
-        // orders: thêm updated_at
-        `ALTER TABLE orders ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP`,
-        // orders: thêm shipping_fee
-        `ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_fee INT NOT NULL DEFAULT 0 AFTER total_price`,
-        // orders: thêm note
-        `ALTER TABLE orders ADD COLUMN IF NOT EXISTS note TEXT NULL AFTER customer_address`,
-        // Bảng reviews
-        `CREATE TABLE IF NOT EXISTS reviews (
+    // 1. Sửa kiểu cột role (bọc try/catch vì MODIFY không có IF NOT EXISTS)
+    try {
+        await pool.query(`ALTER TABLE users MODIFY COLUMN role ENUM('customer','staff','admin') NOT NULL DEFAULT 'customer'`);
+    } catch (e) { /* bỏ qua nếu đã đúng kiểu */ }
+
+    // 2. Thêm các cột còn thiếu
+    await addColumnIfMissing('users', 'address', 'VARCHAR(500) NULL');
+    await addColumnIfMissing('products', 'image_url', 'VARCHAR(500) NULL');
+    await addColumnIfMissing('products', 'stock', 'INT NOT NULL DEFAULT -1');
+    await addColumnIfMissing('products', 'updated_at', 'TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP');
+    await addColumnIfMissing('orders', 'updated_at', 'TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP');
+    await addColumnIfMissing('orders', 'shipping_fee', 'INT NOT NULL DEFAULT 0');
+    await addColumnIfMissing('orders', 'note', 'TEXT NULL');
+    await addColumnIfMissing('order_items', 'emoji', "VARCHAR(10) NOT NULL DEFAULT '🛍️'");
+
+    // 3. Tạo bảng reviews & wishlist nếu chưa có
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS reviews (
             id         INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
             product_id INT NOT NULL,
             user_id    INT NULL,
@@ -120,37 +147,28 @@ async function autoMigrate() {
             comment    TEXT NOT NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-        // Bảng wishlist
-        `CREATE TABLE IF NOT EXISTS wishlist (
+            FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS wishlist (
             id         INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
             user_id    INT NOT NULL,
             product_id INT NOT NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             UNIQUE KEY uq_user_product (user_id, product_id),
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE,
             FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-        // Indexes
-        `CREATE INDEX IF NOT EXISTS idx_products_cat ON products(category_id)`,
-        `CREATE INDEX IF NOT EXISTS idx_products_active_sold ON products(is_active, sold)`,
-        `CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id)`,
-        `CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status, created_at)`,
-        `CREATE INDEX IF NOT EXISTS idx_reviews_product ON reviews(product_id)`,
-    ];
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
 
-    for (const sql of migrations) {
-        try {
-            await pool.query(sql);
-        } catch (err) {
-            if (!err.message.includes('Duplicate column') &&
-                !err.message.includes('already exists') &&
-                !err.message.includes('Duplicate key name')) {
-                console.warn('⚠️  Migration warn:', err.message.slice(0, 120));
-            }
-        }
-    }
+    // 4. Indexes
+    await addIndexIfMissing('idx_products_cat', 'products', 'category_id');
+    await addIndexIfMissing('idx_products_active_sold', 'products', 'is_active, sold');
+    await addIndexIfMissing('idx_orders_user', 'orders', 'user_id');
+    await addIndexIfMissing('idx_orders_status', 'orders', 'status, created_at');
+    await addIndexIfMissing('idx_reviews_product', 'reviews', 'product_id');
+
     console.log('🔄 DB schema OK');
 }
 
@@ -174,3 +192,25 @@ async function startServer() {
 }
 
 startServer();
+
+// ── Graceful shutdown ─────────────────────────────────────────
+function shutdown(signal) {
+    console.log(`\n[${signal}] Server đang tắt...`);
+    pool.end().then(() => {
+        console.log('DB pool đã đóng. Bye! 👋');
+        process.exit(0);
+    }).catch(() => process.exit(1));
+    setTimeout(() => process.exit(1), 8000); // force exit sau 8s
+}
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
+// ── Chống crash vì lỗi không được bắt ────────────────────────
+process.on('uncaughtException', (err) => {
+    console.error('[uncaughtException]', err);
+    // Không exit để server tiếp tục chạy (chỉ log)
+});
+process.on('unhandledRejection', (reason) => {
+    console.error('[unhandledRejection]', reason);
+    // Không exit — lỗi đã được log, route-level try/catch vẫn hoạt động
+});

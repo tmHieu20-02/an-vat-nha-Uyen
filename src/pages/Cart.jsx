@@ -121,7 +121,10 @@ export default function Cart() {
                         <div key={item.id} className="cart-item">
                             <div className="cart-item__product">
                                 <div className="cart-item__img" style={{ background: `linear-gradient(135deg, ${item.color}22, ${item.color}44)` }}>
-                                    <span>{item.emoji}</span>
+                                    {item.image_url
+                                        ? <img src={`http://localhost:3001${item.image_url}`} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+                                        : <span>{item.emoji}</span>
+                                    }
                                 </div>
                                 <div className="cart-item__info">
                                     <p className="cart-item__name">{item.name}</p>
@@ -213,33 +216,47 @@ export default function Cart() {
                             ))}
                         </div>
 
-                        {payMethod === 'bank' && (
-                            <div className="payment-detail bank-detail">
-                                <p className="pay-detail-title">🏦 Thông tin chuyển khoản</p>
-                                <div className="bank-info">
-                                    <div className="bank-row"><span>Ngân hàng</span><strong>VietcomBank (VCB)</strong></div>
-                                    <div className="bank-row"><span>Số tài khoản</span><strong className="bank-acc">0123 4567 8910</strong></div>
-                                    <div className="bank-row"><span>Chủ tài khoản</span><strong>NGUYEN THI PU</strong></div>
-                                    <div className="bank-row"><span>Số tiền</span><strong className="bank-amount">{grandTotal.toLocaleString('vi-VN')}₫</strong></div>
-                                    <div className="bank-row"><span>Nội dung CK</span><strong>ANVAT {info.phone || 'SĐT của bạn'}</strong></div>
-                                </div>
-                                <p className="pay-note">⚠️ Đơn hàng sẽ được xử lý sau khi nhận được thanh toán</p>
-                            </div>
-                        )}
-                        {payMethod === 'momo' && (
-                            <div className="payment-detail momo-detail">
-                                <p className="pay-detail-title">💜 Chuyển khoản MoMo</p>
-                                <div className="momo-info">
-                                    <div className="momo-phone"><span className="momo-icon">📱</span>
-                                        <div><p>Số điện thoại MoMo</p><strong>0987 654 321</strong></div>
+                        {payMethod === 'bank' && (() => {
+                            const BANK_ID = 'TPB';
+                            const BANK_ACCOUNT = '23200365358';
+                            const BANK_NAME = 'VU PHAM PHUONG UYEN';
+                            const addInfo = `ANVATUYEN ${info.phone || 'DH'}`.trim();
+                            const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${BANK_ACCOUNT}-compact2.png?amount=${grandTotal}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(BANK_NAME)}`;
+                            return (
+                                <div className="payment-detail qr-detail">
+                                    <p className="pay-detail-title">🏦 Quét mã QR chuyển khoản</p>
+                                    <div className="qr-wrapper">
+                                        <img src={qrUrl} alt="QR chuyển khoản ngân hàng" className="qr-img" />
                                     </div>
-                                    <div className="bank-row"><span>Tên tài khoản</span><strong>Ăn Vặt Nhà Pu</strong></div>
-                                    <div className="bank-row"><span>Số tiền</span><strong className="momo-amount">{grandTotal.toLocaleString('vi-VN')}₫</strong></div>
-                                    <div className="bank-row"><span>Nội dung</span><strong>ANVAT {info.phone || 'SĐT của bạn'}</strong></div>
+                                    <div className="bank-info">
+                                        <div className="bank-row"><span>Ngân hàng</span><strong>TPBank</strong></div>
+                                        <div className="bank-row"><span>Số tài khoản</span><strong className="bank-acc">2320 0365 358</strong></div>
+                                        <div className="bank-row"><span>Chủ tài khoản</span><strong>VŨ PHẠM PHƯƠNG UYÊN</strong></div>
+                                        <div className="bank-row"><span>Số tiền</span><strong className="bank-amount">{grandTotal.toLocaleString('vi-VN')}₫</strong></div>
+                                        <div className="bank-row"><span>Nội dung CK</span><strong>{addInfo}</strong></div>
+                                    </div>
+                                    <p className="pay-note">📱 Mở app ngân hàng → Quét mã QR — số tiền &amp; nội dung tự động điền</p>
                                 </div>
-                                <p className="pay-note">⚠️ Mở app MoMo → Chuyển tiền → Nhập SĐT trên</p>
-                            </div>
-                        )}
+                            );
+                        })()}
+                        {payMethod === 'momo' && (() => {
+                            const addInfo = `ANVATUYEN ${info.phone || 'DH'}`.trim();
+                            return (
+                                <div className="payment-detail qr-detail momo-qr-detail">
+                                    <p className="pay-detail-title">💜 Quét mã QR MoMo</p>
+                                    <div className="qr-wrapper momo-qr-border">
+                                        <img src="/qr-momo.png" alt="QR MoMo" className="qr-img" />
+                                    </div>
+                                    <div className="bank-info">
+                                        <div className="bank-row"><span>Số MoMo</span><strong>0981815813</strong></div>
+                                        <div className="bank-row"><span>Tên tài khoản</span><strong>VŨ PHẠM PHƯƠNG UYÊN</strong></div>
+                                        <div className="bank-row"><span>Số tiền</span><strong className="momo-amount">{grandTotal.toLocaleString('vi-VN')}₫</strong></div>
+                                        <div className="bank-row"><span>Nội dung</span><strong>{addInfo}</strong></div>
+                                    </div>
+                                    <p className="pay-note">📱 Mở app MoMo → Quét mã QR → nhập số tiền &amp; xác nhận</p>
+                                </div>
+                            );
+                        })()}
                         {payMethod === 'cod' && (
                             <div className="payment-detail cod-detail">
                                 <div className="cod-info">

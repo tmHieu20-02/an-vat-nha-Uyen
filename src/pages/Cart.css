@@ -708,3 +708,55 @@
         align-self: start;
     }
 }
+
+/* ===== QR CODE PAYMENT ===== */
+.qr-detail {
+    background: #fafafa;
+    border: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+}
+
+.qr-detail .pay-detail-title {
+    align-self: flex-start;
+}
+
+.qr-wrapper {
+    background: white;
+    border-radius: 12px;
+    padding: 10px;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.momo-qr-border {
+    border: 3px solid #AE2070;
+    box-shadow: 0 4px 20px rgba(174, 32, 112, 0.2);
+}
+
+.qr-img {
+    width: 200px;
+    height: 200px;
+    display: block;
+    border-radius: 6px;
+}
+
+.qr-detail .bank-info {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.momo-qr-detail {
+    background: rgba(174, 32, 112, 0.04);
+    border-color: rgba(174, 32, 112, 0.15);
+}
+
+.momo-qr-detail .pay-detail-title {
+    color: #AE2070;
+}

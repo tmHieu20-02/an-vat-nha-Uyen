@@ -19,11 +19,11 @@ export default function Footer() {
                         </p>
                         <div className="footer-socials">
                             {[
-                                { icon: <FiFacebook />, href: '#', label: 'Facebook' },
+                                { icon: <FiFacebook />, href: 'https://www.facebook.com/profile.php?id=61588473474639', label: 'Facebook' },
                                 { icon: <FiInstagram />, href: '#', label: 'Instagram' },
                                 { icon: <FiYoutube />, href: '#', label: 'Youtube' },
                             ].map(s => (
-                                <a key={s.label} href={s.href} className="social-btn" aria-label={s.label}>{s.icon}</a>
+                                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="social-btn" aria-label={s.label}>{s.icon}</a>
                             ))}
                         </div>
                     </div>
@@ -72,8 +72,15 @@ export default function Footer() {
                         <div className="footer-payment">
                             <p className="footer-col__title" style={{ marginBottom: 10 }}>Thanh Toán</p>
                             <div className="payment-methods">
-                                {['💳', '🏦', '📱', '💰'].map((icon, i) => (
-                                    <span key={i} className="payment-icon">{icon}</span>
+                                {[
+                                    { icon: '💵', label: 'Tiền mặt' },
+                                    { icon: '🏦', label: 'Chuyển khoản' },
+                                    { icon: '📱', label: 'MoMo' },
+                                    { icon: '💳', label: 'Visa / MC' },
+                                ].map(p => (
+                                    <span key={p.label} className="payment-pill">
+                                        {p.icon} {p.label}
+                                    </span>
                                 ))}
                             </div>
                         </div>
@@ -83,8 +90,15 @@ export default function Footer() {
 
             <div className="footer-bottom">
                 <div className="container footer-bottom-inner">
-                    <p>© 2025 Ăn Vặt Nhà Pu. Bảo lưu mọi quyền.</p>
-                    <p>Thiết kế với ❤️ tại Việt Nam</p>
+                    <p>© 2026 Ăn Vặt Nhà Pu — Ăn Vặt Không Mập, Chỉ Mập Niềm Vui 🍿</p>
+                    <a
+                        href="https://www.facebook.com/profile.php?id=61588473474639"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="footer-fb-link"
+                    >
+                        <FiFacebook size={14} /> Theo dõi Facebook
+                    </a>
                 </div>
             </div>
         </footer>

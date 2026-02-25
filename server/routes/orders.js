@@ -52,12 +52,21 @@ router.post('/', async (req, res) => {
                 [orderId, item.product_id || null, item.product_name, item.emoji || '🛍️', item.price, item.qty]
             );
 
-            // Cập nhật số lượng đã bán
+            // Cập nhật số lượng đã bán + trừ tồn kho (nếu có giới hạn)
             if (item.product_id) {
-                await conn.query(
-                    'UPDATE products SET sold = sold + ? WHERE id = ?',
-                    [item.qty, item.product_id]
-                );
+                try {
+                    await conn.query(
+                        'UPDATE products SET sold = sold + ? WHERE id = ?',
+                        [item.qty, item.product_id]
+                    );
+                    // Trừ stock chỉ khi stock > 0 (stock=-1 = không giới hạn)
+                    await conn.query(
+                        'UPDATE products SET stock = GREATEST(0, stock - ?) WHERE id = ? AND stock > 0',
+                        [item.qty, item.product_id]
+                    );
+                } catch (updateErr) {
+                    console.warn('⚠️ Không thể cập nhật sold/stock:', updateErr.message);
+                }
             }
         }
 
@@ -79,7 +88,7 @@ router.post('/', async (req, res) => {
         await conn.rollback();
         conn.release();
         console.error('POST /orders error:', err);
-        res.status(500).json({ success: false, message: 'Lỗi server khi tạo đơn hàng' });
+        res.status(500).json({ success: false, message: err.message || 'Lỗi server khi tạo đơn hàng' });
     }
 });
 
@@ -179,10 +188,16 @@ router.get('/user/:userId', authMiddleware, async (req, res) => {
         }
 
         const [orders] = await pool.query(
-            `SELECT o.*, GROUP_CONCAT(oi.product_name SEPARATOR ', ') AS product_names,
+            `SELECT o.*,
+                    GROUP_CONCAT(oi.product_name  ORDER BY oi.id SEPARATOR '|||') AS product_names,
+                    GROUP_CONCAT(oi.qty           ORDER BY oi.id SEPARATOR '|||') AS product_qtys,
+                    GROUP_CONCAT(COALESCE(oi.emoji,'🛍️') ORDER BY oi.id SEPARATOR '|||') AS product_emojis,
+                    GROUP_CONCAT(COALESCE(p.image_url,'') ORDER BY oi.id SEPARATOR '|||') AS product_images,
+                    GROUP_CONCAT(COALESCE(oi.product_id,0) ORDER BY oi.id SEPARATOR '|||') AS product_ids,
                     SUM(oi.qty) AS total_qty
              FROM orders o
              LEFT JOIN order_items oi ON oi.order_id = o.id
+             LEFT JOIN products p ON p.id = oi.product_id
              WHERE o.user_id = ?
              GROUP BY o.id
              ORDER BY o.created_at DESC`,

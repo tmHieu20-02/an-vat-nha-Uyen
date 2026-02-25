@@ -70,14 +70,46 @@
 }
 
 .t-card__avatar {
-    font-size: 1.8rem;
+    font-size: 1.2rem;
+    font-weight: 800;
     width: 44px;
     height: 44px;
-    background: var(--bg-section);
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
     border-radius: var(--radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+}
+
+.testimonials-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.testimonials-empty span {
+    font-size: 3.5rem;
+}
+
+.testimonials-empty p {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-body);
+}
+
+.testimonials-empty small {
+    font-size: 0.85rem;
+}
+
+.t-stars {
+    display: flex;
+    gap: 2px;
 }
 
 .t-card__name {
