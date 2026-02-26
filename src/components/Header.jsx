@@ -4,6 +4,7 @@ import { FiSearch, FiShoppingCart, FiMenu, FiX, FiChevronDown, FiPhone, FiUser, 
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { categories } from '../data/products';
+import { getProducts } from '../services/api';
 import './Header.css';
 
 export default function Header({ onSearch }) {
@@ -14,6 +15,8 @@ export default function Header({ onSearch }) {
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchVal, setSearchVal] = useState('');
     const [catOpen, setCatOpen] = useState(false);
+    const [suggestions, setSuggestions] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
     const searchRef = useRef(null);
     const location = useLocation();
 
@@ -31,6 +34,21 @@ export default function Header({ onSearch }) {
     useEffect(() => {
         if (searchOpen) searchRef.current?.focus();
     }, [searchOpen]);
+
+    useEffect(() => {
+        if (!searchVal.trim()) {
+            setSuggestions([]);
+            return;
+        }
+        const timer = setTimeout(() => {
+            setIsSearching(true);
+            getProducts({ search: searchVal.trim(), limit: 5 })
+                .then(res => setSuggestions(res.data || []))
+                .catch(() => { })
+                .finally(() => setIsSearching(false));
+        }, 350);
+        return () => clearTimeout(timer);
+    }, [searchVal]);
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -154,8 +172,38 @@ export default function Header({ onSearch }) {
                                 placeholder="Tìm kiếm đồ ăn vặt..."
                                 className="search-input"
                             />
+                            {isSearching && <span className="search-spinner" />}
                             <button type="submit" className="btn btn-primary search-submit">Tìm</button>
                         </form>
+
+                        {/* Search Suggestions */}
+                        {searchVal.trim().length > 0 && (
+                            <div className="search-suggestions">
+                                {suggestions.length > 0 ? (
+                                    suggestions.map(p => (
+                                        <Link
+                                            key={p.id}
+                                            to={`/products?search=${encodeURIComponent(p.name)}`}
+                                            className="suggestion-item"
+                                            onClick={() => {
+                                                setSearchOpen(false);
+                                                if (onSearch) onSearch(p.name);
+                                            }}
+                                        >
+                                            {p.image_url
+                                                ? <img src={(import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/api\/?$/, '') + p.image_url} alt={p.name} className="suggestion-img" />
+                                                : <span className="suggestion-emoji">{p.emoji}</span>}
+                                            <div className="suggestion-info">
+                                                <p className="suggestion-name">{p.name}</p>
+                                                <p className="suggestion-price">{Number(p.price).toLocaleString('vi-VN')}₫</p>
+                                            </div>
+                                        </Link>
+                                    ))
+                                ) : !isSearching && (
+                                    <div className="suggestion-empty">Không tìm thấy sản phẩm "{searchVal}"</div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </header>

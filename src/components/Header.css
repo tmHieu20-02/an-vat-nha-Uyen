@@ -280,12 +280,19 @@
         border 0.3s ease;
     border-top: 0px solid var(--border);
     background: white;
+    position: relative;
+    z-index: 1001;
 }
 
 .search-bar--open {
-    max-height: 80px;
+    max-height: 100px;
     padding: 14px 0;
     border-top: 1px solid var(--border);
+    overflow: visible;
+}
+
+.search-bar .container {
+    position: relative;
 }
 
 .search-form {
@@ -324,6 +331,89 @@
 .search-submit {
     padding: 8px 20px;
     font-size: 0.85rem;
+}
+
+.search-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--primary);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.search-suggestions {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 24px;
+    right: 24px;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    z-index: 2000;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-light);
+    transition: background 0.2s;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background: var(--bg-section);
+}
+
+.suggestion-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--bg);
+}
+
+.suggestion-emoji {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: var(--bg-section);
+    border-radius: 8px;
+}
+
+.suggestion-info {
+    flex: 1;
+}
+
+.suggestion-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+}
+
+.suggestion-price {
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--primary);
+}
+
+.suggestion-empty {
+    padding: 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
 }
 
 /* ===== MOBILE MENU ===== */
