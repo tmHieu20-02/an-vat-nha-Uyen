@@ -22,7 +22,9 @@
 }
 
 .product-card__img {
-    height: 200px;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -203,10 +205,6 @@
 }
 
 @media (max-width: 480px) {
-    .product-card__img {
-        height: 140px;
-    }
-
     .product-card__emoji {
         font-size: 3.5rem;
     }
