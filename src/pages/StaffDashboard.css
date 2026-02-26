@@ -822,4 +822,26 @@
     .staff-nav-btn span {
         display: none;
     }
+
+    .staff-main {
+        padding: 16px;
+    }
+
+    .staff-topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .filter-bar {
+        margin-bottom: 24px;
+    }
+}
+
+/* ── Table Responsive Wrapper ─ */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background: #1e293b;
+    border-radius: 12px;
 }

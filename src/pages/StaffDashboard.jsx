@@ -235,28 +235,30 @@ function OrderModal({ order, onClose, onUpdate }) {
                         {order.note && <div className="full"><strong>Ghi chú:</strong> {order.note}</div>}
                     </div>
 
-                    <table className="items-table">
-                        <thead><tr><th>Sản phẩm</th><th>Đơn giá</th><th>SL</th><th>Thành tiền</th></tr></thead>
-                        <tbody>
-                            {items.map((item, i) => (
-                                <tr key={i}>
-                                    <td style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                        {item.product_image_url
-                                            ? <img src={IMG_BASE + item.product_image_url} alt={item.product_name} style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 6, border: '1px solid #334155', flexShrink: 0 }} />
-                                            : <span style={{ fontSize: '1.4rem', width: 36, textAlign: 'center' }}>{item.emoji}</span>
-                                        }
-                                        {item.product_name}
-                                    </td>
-                                    <td>{fmt(item.price)}</td>
-                                    <td>{item.qty}</td>
-                                    <td>{fmt(item.price * item.qty)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                        <tfoot>
-                            <tr><td colSpan={3}><strong>Tổng cộng</strong></td><td><strong>{fmt(order.total_price)}</strong></td></tr>
-                        </tfoot>
-                    </table>
+                    <div className="table-wrapper">
+                        <table className="items-table">
+                            <thead><tr><th>Sản phẩm</th><th>Đơn giá</th><th>SL</th><th>Thành tiền</th></tr></thead>
+                            <tbody>
+                                {items.map((item, i) => (
+                                    <tr key={i}>
+                                        <td style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                            {item.product_image_url
+                                                ? <img src={IMG_BASE + item.product_image_url} alt={item.product_name} style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 6, border: '1px solid #334155', flexShrink: 0 }} />
+                                                : <span style={{ fontSize: '1.4rem', width: 36, textAlign: 'center' }}>{item.emoji}</span>
+                                            }
+                                            {item.product_name}
+                                        </td>
+                                        <td>{fmt(item.price)}</td>
+                                        <td>{item.qty}</td>
+                                        <td>{fmt(item.price * item.qty)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                            <tfoot>
+                                <tr><td colSpan={3}><strong>Tổng cộng</strong></td><td><strong>{fmt(order.total_price)}</strong></td></tr>
+                            </tfoot>
+                        </table>
+                    </div>
 
                     {/* Action buttons */}
                     <div className="order-action-row">
@@ -419,24 +421,26 @@ export default function StaffDashboard() {
                         </div>
                         <div className="recent-orders-section">
                             <h3>📋 Đơn hàng gần nhất</h3>
-                            <table className="orders-table">
-                                <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Tổng tiền</th><th>TT</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>
-                                <tbody>
-                                    {stats.recentOrders.map(o => {
-                                        const st = STATUS_INFO[o.status];
-                                        return (
-                                            <tr key={o.id} style={{ cursor: 'pointer' }} onClick={() => setOrderModal(o)}>
-                                                <td>#{String(o.id).padStart(6, '0')}</td>
-                                                <td>{o.customer_name}<br /><small>{o.customer_phone}</small></td>
-                                                <td>{fmt(o.total_price)}</td>
-                                                <td>{o.payment_method?.toUpperCase()}</td>
-                                                <td><span className="status-badge" style={{ background: st?.color }}>{st?.icon} {st?.label}</span></td>
-                                                <td>{fmtDate(o.created_at)}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                            <div className="table-wrapper">
+                                <table className="orders-table">
+                                    <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Tổng tiền</th><th>TT</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>
+                                    <tbody>
+                                        {stats.recentOrders.map(o => {
+                                            const st = STATUS_INFO[o.status];
+                                            return (
+                                                <tr key={o.id} style={{ cursor: 'pointer' }} onClick={() => setOrderModal(o)}>
+                                                    <td>#{String(o.id).padStart(6, '0')}</td>
+                                                    <td>{o.customer_name}<br /><small>{o.customer_phone}</small></td>
+                                                    <td>{fmt(o.total_price)}</td>
+                                                    <td>{o.payment_method?.toUpperCase()}</td>
+                                                    <td><span className="status-badge" style={{ background: st?.color }}>{st?.icon} {st?.label}</span></td>
+                                                    <td>{fmtDate(o.created_at)}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -452,43 +456,45 @@ export default function StaffDashboard() {
                                 </button>
                             ))}
                         </div>
-                        <table className="orders-table">
-                            <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Sản phẩm</th><th>Tổng tiền</th><th>TT</th><th>Trạng thái</th><th>Nhanh</th></tr></thead>
-                            <tbody>
-                                {orders.map(o => {
-                                    const st = STATUS_INFO[o.status];
-                                    return (
-                                        <tr key={o.id} style={{ cursor: 'pointer' }} onClick={() => setOrderModal(o)}>
-                                            <td>#{String(o.id).padStart(6, '0')}<br /><small>{fmtDate(o.created_at)}</small></td>
-                                            <td>{o.customer_name}<br /><small>{o.customer_phone}</small></td>
-                                            <td>{o.item_count} sp<br /><small style={{ fontSize: 11 }}>{o.products_summary?.slice(0, 40)}{o.products_summary?.length > 40 ? '...' : ''}</small></td>
-                                            <td>{fmt(o.total_price)}</td>
-                                            <td>{o.payment_method?.toUpperCase()}</td>
-                                            <td><span className="status-badge" style={{ background: st?.color }}>{st?.icon} {st?.label}</span></td>
-                                            <td onClick={e => e.stopPropagation()}>
-                                                <div className="action-btns">
-                                                    {o.status === 'pending' && <>
-                                                        <button className="action-btn confirm" onClick={() => {
-                                                            authFetch(`${BASE}/orders/${o.id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'confirmed' }) })
-                                                                .then(() => { showToast('Đã xác nhận!', '✅'); load('orders'); });
-                                                        }}><FiCheck size={12} /> Xác nhận</button>
-                                                        <button className="action-btn cancel" onClick={() => {
-                                                            authFetch(`${BASE}/orders/${o.id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'cancelled' }) })
-                                                                .then(() => { showToast('Đã từ chối!', '❌'); load('orders'); });
-                                                        }}><FiX size={12} /> Từ chối</button>
-                                                    </>}
-                                                    {o.status === 'confirmed' && <button className="action-btn ship" onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        authFetch(`${BASE}/orders/${o.id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'shipping' }) })
-                                                            .then(() => { showToast('Đang giao!', '🚚'); load('orders'); });
-                                                    }}><FiTruck size={12} /> Giao hàng</button>}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                        <div className="table-wrapper">
+                            <table className="orders-table">
+                                <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Sản phẩm</th><th>Tổng tiền</th><th>TT</th><th>Trạng thái</th><th>Nhanh</th></tr></thead>
+                                <tbody>
+                                    {orders.map(o => {
+                                        const st = STATUS_INFO[o.status];
+                                        return (
+                                            <tr key={o.id} style={{ cursor: 'pointer' }} onClick={() => setOrderModal(o)}>
+                                                <td>#{String(o.id).padStart(6, '0')}<br /><small>{fmtDate(o.created_at)}</small></td>
+                                                <td>{o.customer_name}<br /><small>{o.customer_phone}</small></td>
+                                                <td>{o.item_count} sp<br /><small style={{ fontSize: 11 }}>{o.products_summary?.slice(0, 40)}{o.products_summary?.length > 40 ? '...' : ''}</small></td>
+                                                <td>{fmt(o.total_price)}</td>
+                                                <td>{o.payment_method?.toUpperCase()}</td>
+                                                <td><span className="status-badge" style={{ background: st?.color }}>{st?.icon} {st?.label}</span></td>
+                                                <td onClick={e => e.stopPropagation()}>
+                                                    <div className="action-btns">
+                                                        {o.status === 'pending' && <>
+                                                            <button className="action-btn confirm" onClick={() => {
+                                                                authFetch(`${BASE}/orders/${o.id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'confirmed' }) })
+                                                                    .then(() => { showToast('Đã xác nhận!', '✅'); load('orders'); });
+                                                            }}><FiCheck size={12} /> Xác nhận</button>
+                                                            <button className="action-btn cancel" onClick={() => {
+                                                                authFetch(`${BASE}/orders/${o.id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'cancelled' }) })
+                                                                    .then(() => { showToast('Đã từ chối!', '❌'); load('orders'); });
+                                                            }}><FiX size={12} /> Từ chối</button>
+                                                        </>}
+                                                        {o.status === 'confirmed' && <button className="action-btn ship" onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            authFetch(`${BASE}/orders/${o.id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'shipping' }) })
+                                                                .then(() => { showToast('Đang giao!', '🚚'); load('orders'); });
+                                                        }}><FiTruck size={12} /> Giao hàng</button>}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
                         {orders.length === 0 && <p className="empty-msg">Không có đơn hàng nào</p>}
                     </div>
                 )}
@@ -496,68 +502,72 @@ export default function StaffDashboard() {
                 {/* PRODUCTS */}
                 {!loading && activeTab === 'products' && (
                     <div className="products-content">
-                        <table className="orders-table">
-                            <thead><tr><th>Ảnh</th><th>Sản phẩm</th><th>Danh mục</th><th>Giá</th><th>Đã bán</th><th>📦 Kho</th><th>⭐</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
-                            <tbody>
-                                {products.map(p => (
-                                    <tr key={p.id} className={!p.is_active ? 'row-inactive' : ''}>
-                                        <td>
-                                            {p.image_url
-                                                ? <img src={IMG_BASE + p.image_url} alt={p.name} className="product-thumb" />
-                                                : <div className="product-thumb-emoji" style={{ background: `${p.color}33` }}>{p.emoji}</div>
-                                            }
-                                        </td>
-                                        <td><strong>{p.name}</strong>{p.badge && <span className="badge-inline">{p.badge}</span>}</td>
-                                        <td>{p.category_name}</td>
-                                        <td>
-                                            {fmt(p.price)}
-                                            {p.original_price && <><br /><del style={{ color: '#64748b', fontSize: 11 }}>{fmt(p.original_price)}</del></>}
-                                        </td>
-                                        <td>{p.sold?.toLocaleString()}</td>
-                                        <td style={{
-                                            fontWeight: 700,
-                                            color: p.stock === 0 ? '#ef4444' : p.stock > 0 && p.stock <= 10 ? '#f59e0b' : '#22c55e'
-                                        }}>
-                                            {p.stock === -1 ? '∞' : p.stock === 0 ? 'Hết' : p.stock}
-                                        </td>
-                                        <td>{p.rating}</td>
-                                        <td>
-                                            <button className={`toggle-btn ${p.is_active ? 'active' : 'inactive'}`} onClick={() => toggleActive(p)}>
-                                                {p.is_active ? '✅ Hiện' : '🚫 Ẩn'}
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <div className="action-btns">
-                                                <button className="action-btn confirm" onClick={() => setProductModal(p)}><FiEdit2 size={12} /> Sửa</button>
-                                                <button className="action-btn cancel" onClick={() => deleteProduct(p)}><FiTrash2 size={12} /> Xoá</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <div className="table-wrapper">
+                            <table className="orders-table">
+                                <thead><tr><th>Ảnh</th><th>Sản phẩm</th><th>Danh mục</th><th>Giá</th><th>Đã bán</th><th>📦 Kho</th><th>⭐</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+                                <tbody>
+                                    {products.map(p => (
+                                        <tr key={p.id} className={!p.is_active ? 'row-inactive' : ''}>
+                                            <td>
+                                                {p.image_url
+                                                    ? <img src={IMG_BASE + p.image_url} alt={p.name} className="product-thumb" />
+                                                    : <div className="product-thumb-emoji" style={{ background: `${p.color}33` }}>{p.emoji}</div>
+                                                }
+                                            </td>
+                                            <td><strong>{p.name}</strong>{p.badge && <span className="badge-inline">{p.badge}</span>}</td>
+                                            <td>{p.category_name}</td>
+                                            <td>
+                                                {fmt(p.price)}
+                                                {p.original_price && <><br /><del style={{ color: '#64748b', fontSize: 11 }}>{fmt(p.original_price)}</del></>}
+                                            </td>
+                                            <td>{p.sold?.toLocaleString()}</td>
+                                            <td style={{
+                                                fontWeight: 700,
+                                                color: p.stock === 0 ? '#ef4444' : p.stock > 0 && p.stock <= 10 ? '#f59e0b' : '#22c55e'
+                                            }}>
+                                                {p.stock === -1 ? '∞' : p.stock === 0 ? 'Hết' : p.stock}
+                                            </td>
+                                            <td>{p.rating}</td>
+                                            <td>
+                                                <button className={`toggle-btn ${p.is_active ? 'active' : 'inactive'}`} onClick={() => toggleActive(p)}>
+                                                    {p.is_active ? '✅ Hiện' : '🚫 Ẩn'}
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <div className="action-btns">
+                                                    <button className="action-btn confirm" onClick={() => setProductModal(p)}><FiEdit2 size={12} /> Sửa</button>
+                                                    <button className="action-btn cancel" onClick={() => deleteProduct(p)}><FiTrash2 size={12} /> Xoá</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
 
                 {/* CUSTOMERS */}
                 {!loading && activeTab === 'customers' && (
                     <div className="customers-content">
-                        <table className="orders-table">
-                            <thead><tr><th>#</th><th>Họ tên</th><th>Email</th><th>SĐT</th><th>Số đơn</th><th>Chi tiêu</th><th>Tham gia</th></tr></thead>
-                            <tbody>
-                                {customers.map(c => (
-                                    <tr key={c.id}>
-                                        <td>{c.id}</td>
-                                        <td>{c.full_name}</td>
-                                        <td>{c.email}</td>
-                                        <td>{c.phone || '-'}</td>
-                                        <td>{c.order_count}</td>
-                                        <td>{fmt(c.total_spent)}</td>
-                                        <td>{new Date(c.created_at).toLocaleDateString('vi-VN')}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <div className="table-wrapper">
+                            <table className="orders-table">
+                                <thead><tr><th>#</th><th>Họ tên</th><th>Email</th><th>SĐT</th><th>Số đơn</th><th>Chi tiêu</th><th>Tham gia</th></tr></thead>
+                                <tbody>
+                                    {customers.map(c => (
+                                        <tr key={c.id}>
+                                            <td>{c.id}</td>
+                                            <td>{c.full_name}</td>
+                                            <td>{c.email}</td>
+                                            <td>{c.phone || '-'}</td>
+                                            <td>{c.order_count}</td>
+                                            <td>{fmt(c.total_spent)}</td>
+                                            <td>{new Date(c.created_at).toLocaleDateString('vi-VN')}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                         {customers.length === 0 && <p className="empty-msg">Chưa có khách hàng</p>}
                     </div>
                 )}
