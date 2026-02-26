@@ -20,7 +20,7 @@ const STATUS_LABEL = {
     done: { label: '🎉 Hoàn thành', cls: 'status-done' },
     cancelled: { label: '❌ Đã huỷ', cls: 'status-cancelled' },
 };
-const IMG_BASE = 'http://localhost:3001';
+const IMG_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
 
 // ── ReviewModal ───────────────────────────────────────────────────
 function ReviewModal({ items, onClose, onDone }) {

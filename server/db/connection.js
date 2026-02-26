@@ -9,6 +9,7 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME || 'anvatnhapu',
     charset: 'utf8mb4',
     timezone: '+07:00',
+    ssl: process.env.DB_SSL ? JSON.parse(process.env.DB_SSL) : undefined,
 
     // Pool config
     waitForConnections: true,

@@ -7,6 +7,8 @@ import { showToast } from '../components/Toast';
 import { createOrder } from '../services/api';
 import './Cart.css';
 
+const IMG_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
+
 const PAYMENT_METHODS = [
     { id: 'cod', label: 'Thanh toán khi nhận hàng', desc: 'Trả tiền mặt khi giao hàng đến tay', icon: '💵', color: '#22C55E' },
     { id: 'momo', label: 'Ví MoMo', desc: 'Chuyển khoản qua ứng dụng MoMo', icon: '💜', color: '#AE2070' },
@@ -122,7 +124,7 @@ export default function Cart() {
                             <div className="cart-item__product">
                                 <div className="cart-item__img" style={{ background: `linear-gradient(135deg, ${item.color}22, ${item.color}44)` }}>
                                     {item.image_url
-                                        ? <img src={`http://localhost:3001${item.image_url}`} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+                                        ? <img src={`${IMG_BASE}${item.image_url}`} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
                                         : <span>{item.emoji}</span>
                                     }
                                 </div>
