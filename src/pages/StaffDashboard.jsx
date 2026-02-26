@@ -10,7 +10,7 @@ import { showToast } from '../components/Toast';
 import './StaffDashboard.css';
 
 const BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/staff` : 'http://localhost:3001/api/staff';
-const IMG_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
+const IMG_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/api\/?$/, '');
 
 const authFetch = (url, opts = {}) => {
     const token = localStorage.getItem('token');

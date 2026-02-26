@@ -20,13 +20,12 @@ const STATUS_LABEL = {
     done: { label: '🎉 Hoàn thành', cls: 'status-done' },
     cancelled: { label: '❌ Đã huỷ', cls: 'status-cancelled' },
 };
-const IMG_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
+const IMG_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/api\/?$/, '');
 
 // ── ReviewModal ───────────────────────────────────────────────────
 function ReviewModal({ items, onClose, onDone }) {
     const [step, setStep] = useState(0); // index trong mảng items chưa đánh giá
     const [rating, setRating] = useState(0);
-    const [hovered, setHovered] = useState(0);
     const [comment, setComment] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
@@ -77,20 +76,18 @@ function ReviewModal({ items, onClose, onDone }) {
                         <button
                             key={n}
                             className="star-btn"
-                            onMouseEnter={() => setHovered(n)}
-                            onMouseLeave={() => setHovered(0)}
                             onClick={() => setRating(n)}
                             aria-label={`${n} sao`}
                         >
                             <FiStar
                                 size={30}
-                                fill={(hovered || rating) >= n ? 'var(--secondary-dark)' : 'none'}
-                                stroke={(hovered || rating) >= n ? 'var(--secondary-dark)' : 'var(--text-light)'}
+                                fill={rating >= n ? 'var(--secondary-dark)' : 'none'}
+                                stroke={rating >= n ? 'var(--secondary-dark)' : 'var(--text-light)'}
                             />
                         </button>
                     ))}
                     <span className="star-label">
-                        {['', 'Tệ', 'Không tốt', 'Bình thường', 'Tốt', 'Tuyệt vời'][hovered || rating] || ''}
+                        {['', 'Tệ', 'Không tốt', 'Bình thường', 'Tốt', 'Tuyệt vời'][rating] || ''}
                     </span>
                 </div>
 
@@ -313,7 +310,9 @@ export default function Profile() {
                                                     const ids = (order.product_ids || '').split('|||').map(Number).filter(Boolean);
                                                     const allReviewed = ids.length > 0 && ids.every(id => reviewed.has(id));
                                                     return allReviewed
-                                                        ? <span className="badge-reviewed">✅ Đã đánh giá</span>
+                                                        ? <button className="btn-review btn-reviewed" disabled>
+                                                            <FiStar size={13} fill="currentColor" /> Đã đánh giá
+                                                        </button>
                                                         : <button className="btn-review" onClick={() => openReviewModal(order)}>
                                                             <FiStar size={13} fill="currentColor" /> Đánh giá
                                                         </button>;

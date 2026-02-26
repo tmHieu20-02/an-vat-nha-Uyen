@@ -7,7 +7,7 @@ import { showToast } from '../components/Toast';
 import { createOrder } from '../services/api';
 import './Cart.css';
 
-const IMG_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
+const IMG_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/api\/?$/, '');
 
 const PAYMENT_METHODS = [
     { id: 'cod', label: 'Thanh toán khi nhận hàng', desc: 'Trả tiền mặt khi giao hàng đến tay', icon: '💵', color: '#22C55E' },

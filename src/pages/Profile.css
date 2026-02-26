@@ -475,14 +475,18 @@
     transform: scale(1.04);
 }
 
-.badge-reviewed {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #16A34A;
-    background: rgba(34, 197, 94, 0.1);
-    padding: 4px 10px;
-    border-radius: var(--radius-full);
-    white-space: nowrap;
+.btn-reviewed {
+    background: var(--bg-section);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none !important;
+}
+
+.btn-reviewed:hover {
+    opacity: 0.6;
+    transform: none !important;
 }
 
 /* Review overlay + modal */

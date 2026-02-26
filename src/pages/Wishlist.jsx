@@ -8,7 +8,7 @@ import { showToast } from '../components/Toast';
 import Footer from '../components/Footer';
 import './Wishlist.css';
 
-const IMG_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
+const IMG_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/api\/?$/, '');
 
 function formatPrice(n) {
     return Number(n).toLocaleString('vi-VN') + '₫';

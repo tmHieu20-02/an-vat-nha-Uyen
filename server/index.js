@@ -138,7 +138,51 @@ async function autoMigrate() {
     await addColumnIfMissing('orders', 'note', 'TEXT NULL');
     await addColumnIfMissing('order_items', 'emoji', "VARCHAR(10) NOT NULL DEFAULT '🛍️'");
 
-    // 3. Tạo bảng reviews & wishlist nếu chưa có
+    // 3. Tạo bảng orders, order_items, testimonials, reviews & wishlist nếu chưa có
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS orders (
+            id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NULL,
+            customer_name VARCHAR(255) NOT NULL,
+            customer_phone VARCHAR(20) NOT NULL,
+            customer_address TEXT NOT NULL,
+            note TEXT NULL,
+            payment_method ENUM('cod','momo','bank') NOT NULL DEFAULT 'cod',
+            status ENUM('pending','confirmed','shipping','done','cancelled') NOT NULL DEFAULT 'pending',
+            total_price INT NOT NULL,
+            shipping_fee INT NOT NULL DEFAULT 0,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS order_items (
+            id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            order_id INT NOT NULL,
+            product_id INT NULL,
+            product_name VARCHAR(255) NOT NULL,
+            emoji VARCHAR(10) NOT NULL DEFAULT '🛍️',
+            price INT NOT NULL,
+            qty INT NOT NULL,
+            FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS testimonials (
+            id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            avatar VARCHAR(10) NOT NULL DEFAULT '👤',
+            rating INT NOT NULL DEFAULT 5,
+            comment TEXT NOT NULL,
+            product VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
     await pool.query(`
         CREATE TABLE IF NOT EXISTS reviews (
             id         INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -176,21 +220,20 @@ async function autoMigrate() {
 
 // ── Start server ──────────────────────────────────────────────
 async function startServer() {
-    try {
-        const conn = await pool.getConnection();
-        console.log('✅ Kết nối MySQL thành công!');
-        conn.release();
+    app.listen(PORT, '0.0.0.0', async () => {
+        console.log(`🚀 Server: http://0.0.0.0:${PORT}`);
+        console.log(`📦 API:    http://0.0.0.0:${PORT}/api/products`);
 
-        await autoMigrate();
+        try {
+            const conn = await pool.getConnection();
+            console.log('✅ Kết nối MySQL thành công!');
+            conn.release();
 
-        app.listen(PORT, () => {
-            console.log(`🚀 Server: http://localhost:${PORT}`);
-            console.log(`📦 API:    http://localhost:${PORT}/api/products`);
-        });
-    } catch (err) {
-        console.error('❌ Không thể kết nối MySQL:', err.message);
-        process.exit(1);
-    }
+            await autoMigrate();
+        } catch (err) {
+            console.error('❌ Không thể kết nối MySQL:', err.message);
+        }
+    });
 }
 
 startServer();

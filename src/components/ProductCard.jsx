@@ -6,7 +6,7 @@ import { toggleWishlist } from '../services/api';
 import { showToast } from './Toast';
 import './ProductCard.css';
 
-const IMG_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace('/api', '');
+const IMG_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/api\/?$/, '');
 
 const badgeClass = {
     'Bán chạy': 'badge-hot',
