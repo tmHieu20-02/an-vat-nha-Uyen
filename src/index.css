@@ -427,13 +427,27 @@ h5 {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 480px) {
+  .container {
+    padding: 0 8px;
+  }
+
   .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .section-title {
+    font-size: 1.4rem;
   }
 }
 
 @media (max-width: 360px) {
+  .container {
+    padding: 0 6px;
+  }
+
   .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
   }
 }
