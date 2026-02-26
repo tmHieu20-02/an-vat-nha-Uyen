@@ -431,6 +431,40 @@
     }
 }
 
+@media (max-width: 480px) {
+    .header-inner {
+        gap: 8px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .logo-text {
+        font-size: 1.1rem;
+    }
+
+    .logo-img {
+        height: 38px;
+    }
+
+    .icon-btn,
+    .hamburger,
+    .user-avatar-sm {
+        width: 32px;
+        height: 32px;
+    }
+
+    .header-actions {
+        gap: 2px;
+    }
+}
+
+@media (max-width: 360px) {
+    .logo-text {
+        display: none;
+        /* Hide text on very small screens, keep icon */
+    }
+}
+
 /* ===== USER MENU ===== */
 .user-menu {
     position: relative;

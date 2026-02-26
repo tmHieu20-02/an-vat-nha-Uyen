@@ -212,15 +212,33 @@
     }
 
     .product-card__info {
-        padding: 12px;
+        padding: 10px;
+        gap: 4px;
     }
 
     .product-card__name {
-        font-size: 0.83rem;
+        font-size: 0.8rem;
+    }
+
+    .product-card__price {
+        font-size: 1.05rem;
+    }
+
+    .product-card__cta {
+        padding: 8px 6px;
+        font-size: 0.75rem;
+        gap: 4px;
     }
 
     .rating-sold {
         display: none;
+    }
+}
+
+@media (max-width: 360px) {
+    .product-card__cta {
+        font-size: 0.7rem;
+        padding: 6px 4px;
     }
 }
 
