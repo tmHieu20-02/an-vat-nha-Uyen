@@ -18,6 +18,7 @@ const reviewsRoute = require('./routes/reviews');
 const wishlistRoute = require('./routes/wishlist');
 
 const app = express();
+app.set('trust proxy', 1); // Enable cho Render/Vercel
 const PORT = process.env.PORT || 3001;
 
 // ── Security ─────────────────────────────────────────────────
