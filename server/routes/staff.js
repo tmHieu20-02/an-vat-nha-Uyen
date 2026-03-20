@@ -6,24 +6,45 @@ const fs = require('fs');
 const pool = require('../db/connection');
 const staffMiddleware = require('../middleware/staff');
 
-// ── Upload config ─────────────────────────────────────────────
-const uploadDir = path.join(__dirname, '../../uploads/products');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+// ── Upload config (Cloudinary & Local Fallback) ────────────────
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-const storage = multer.diskStorage({
-    destination: (_, __, cb) => cb(null, uploadDir),
-    filename: (_, file, cb) => {
-        const unique = Date.now() + '-' + Math.round(Math.random() * 1000);
-        cb(null, unique + path.extname(file.originalname));
-    },
+// Cấu hình Cloudinary (cần cấu hình ENV trên Render)
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
+
+let storage;
+
+if (process.env.CLOUDINARY_CLOUD_NAME) {
+    // Nếu có config Cloudinary -> Upload lên mạng
+    storage = new CloudinaryStorage({
+        cloudinary: cloudinary,
+        params: {
+            folder: 'anvatuyen',
+            allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'gif'],
+        },
+    });
+} else {
+    // Fallback: Chạy dưới Local máy tính
+    const uploadDir = path.join(__dirname, '../../uploads/products');
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+    storage = multer.diskStorage({
+        destination: (_, __, cb) => cb(null, uploadDir),
+        filename: (_, file, cb) => {
+            const unique = Date.now() + '-' + Math.round(Math.random() * 1000);
+            cb(null, unique + path.extname(file.originalname));
+        },
+    });
+}
+
 const upload = multer({
     storage,
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-    fileFilter: (_, file, cb) => {
-        const ok = /jpeg|jpg|png|webp|gif/.test(file.mimetype);
-        cb(ok ? null : new Error('Chỉ chấp nhận ảnh JPG/PNG/WEBP/GIF'), ok);
-    },
 });
 
 // Tất cả routes đều cần xác thực staff/admin
@@ -136,7 +157,8 @@ router.post('/products', upload.single('image'), async (req, res) => {
             if (req.file) fs.unlinkSync(req.file.path);
             return res.status(400).json({ success: false, message: 'Thiếu thông tin bắt buộc (tên, danh mục, giá, mô tả, emoji)' });
         }
-        const image_url = req.file ? `/uploads/products/${req.file.filename}` : null;
+        // Đối với Cloudinary, req.file.path chính là URL trực tiếp của ảnh
+        const image_url = req.file ? req.file.path : null;
         const stockVal = stock !== undefined && stock !== '' ? parseInt(stock) : -1;
 
         const [result] = await pool.query(
@@ -174,11 +196,10 @@ router.put('/products/:id', upload.single('image'), async (req, res) => {
 
         let image_url = old.image_url;
         if (req.file) {
-            image_url = `/uploads/products/${req.file.filename}`;
-            if (old.image_url) {
-                const oldPath = path.join(__dirname, '../../', old.image_url);
-                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-            }
+            image_url = req.file.path; // URL của Cloudinary
+            // TODO: (Tùy chọn) Có thể gọi API Xóa ảnh cũ trên Cloudinary (destroy)
+            // nhưng để đơn giản cho dự án nhỏ, chúng ta cứ để ảnh cũ đó hoặc bạn
+            // có thể xoá tay trên dashboard Cloudinary nếu muốn tiết kiệm dung lượng.
         }
 
         await pool.query(
@@ -212,11 +233,9 @@ router.delete('/products/:id', async (req, res) => {
         const [[product]] = await pool.query('SELECT image_url FROM products WHERE id = ?', [req.params.id]);
         if (!product) return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm' });
 
-        // Xoá ảnh vật lý
-        if (product.image_url) {
-            const imgPath = path.join(__dirname, '../../', product.image_url);
-            if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
-        }
+        // TODO: Giống như Sửa sản phẩm, bạn có thể gọi API xoá ảnh Cloudinary
+        // `cloudinary.uploader.destroy(...)` bằng public_id.
+        // Tạm thời chỉ xoá sản phẩm trong Database.
 
         await pool.query('DELETE FROM products WHERE id = ?', [req.params.id]);
         res.json({ success: true, message: 'Đã xoá sản phẩm' });

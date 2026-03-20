@@ -372,7 +372,10 @@ export default function StaffDashboard() {
         <div className="staff-page">
             {/* Sidebar */}
             <aside className="staff-sidebar">
-                <div className="staff-logo">🍿 Staff Panel</div>
+                <div className="staff-logo">
+                    <span className="logo-icon">🍿</span>
+                    <span className="nav-text">Staff Panel</span>
+                </div>
                 <div className="staff-user">
                     <div className="staff-avatar">{user.full_name?.charAt(0)}</div>
                     <div>
@@ -383,13 +386,19 @@ export default function StaffDashboard() {
                 <nav className="staff-nav">
                     {tabs.map(t => (
                         <button key={t.id} className={`staff-nav-btn ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)}>
-                            {t.icon} {t.label}
+                            {t.icon} <span className="nav-text">{t.label}</span>
                         </button>
                     ))}
                 </nav>
                 <div className="staff-footer">
-                    <Link to="/" className="staff-nav-btn">🏠 Về shop</Link>
-                    <button className="staff-nav-btn logout" onClick={handleLogout}><FiLogOut /> Đăng xuất</button>
+                    <Link to="/" className="staff-nav-btn">
+                        <span className="footer-icon">🏠</span>
+                        <span className="nav-text">Về shop</span>
+                    </Link>
+                    <button className="staff-nav-btn logout" onClick={handleLogout}>
+                        <FiLogOut size={18} />
+                        <span className="nav-text">Đăng xuất</span>
+                    </button>
                 </div>
             </aside>
 
