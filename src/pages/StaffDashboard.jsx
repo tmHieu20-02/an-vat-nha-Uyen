@@ -327,21 +327,27 @@ export default function StaffDashboard() {
 
     const load = async (tab) => {
         setLoading(true);
-        if (tab === 'dashboard') {
-            const r = await authFetch(`${BASE}/dashboard`);
-            if (r.success) setStats(r.data);
-        } else if (tab === 'orders') {
-            const url = filterStatus ? `${BASE}/orders?status=${filterStatus}` : `${BASE}/orders`;
-            const r = await authFetch(url);
-            if (r.success) setOrders(r.data);
-        } else if (tab === 'products') {
-            const r = await authFetch(`${BASE}/products`);
-            if (r.success) setProducts(r.data);
-        } else if (tab === 'customers') {
-            const r = await authFetch(`${BASE}/customers`);
-            if (r.success) setCustomers(r.data);
+        try {
+            if (tab === 'dashboard') {
+                const r = await authFetch(`${BASE}/dashboard`);
+                if (r.success) setStats(r.data);
+            } else if (tab === 'orders') {
+                const url = filterStatus ? `${BASE}/orders?status=${filterStatus}` : `${BASE}/orders`;
+                const r = await authFetch(url);
+                if (r.success) setOrders(r.data);
+            } else if (tab === 'products') {
+                const r = await authFetch(`${BASE}/products`);
+                if (r.success) setProducts(r.data);
+            } else if (tab === 'customers') {
+                const r = await authFetch(`${BASE}/customers`);
+                if (r.success) setCustomers(r.data);
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+            showToast('Không thể kết nối với server', '❌', 'error');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const deleteProduct = async (p) => {

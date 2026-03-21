@@ -31,6 +31,16 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Đơn hàng không có sản phẩm' });
         }
 
+        // Kiểm tra user_id nếu có
+        if (user_id) {
+            const [users] = await conn.query('SELECT id FROM users WHERE id = ?', [user_id]);
+            if (users.length === 0) {
+                await conn.rollback();
+                conn.release();
+                return res.status(401).json({ success: false, message: 'Tài khoản không hợp lệ (có thể do reset DB). Vui lòng đăng xuất và đăng nhập lại!' });
+            }
+        }
+
         // Tính tổng tiền
         const total_price = items.reduce((sum, i) => sum + i.price * i.qty, 0);
         const shipping_fee = total_price >= 200000 ? 0 : 30000;
