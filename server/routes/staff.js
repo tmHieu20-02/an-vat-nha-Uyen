@@ -29,8 +29,8 @@ if (process.env.CLOUDINARY_CLOUD_NAME) {
         },
     });
 } else {
-    // Fallback: Chạy dưới Local máy tính
-    const uploadDir = path.join(__dirname, '../../uploads/products');
+    // Fallback: Chạy dưới Local máy tính (lưu vào bên trong thư mục server/uploads)
+    const uploadDir = path.join(__dirname, '../uploads/products');
     if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
     storage = multer.diskStorage({
@@ -158,7 +158,10 @@ router.post('/products', upload.single('image'), async (req, res) => {
             return res.status(400).json({ success: false, message: 'Thiếu thông tin bắt buộc (tên, danh mục, giá, mô tả, emoji)' });
         }
         // Đối với Cloudinary, req.file.path chính là URL trực tiếp của ảnh
-        const image_url = req.file ? req.file.path : null;
+        let image_url = null;
+        if (req.file) {
+            image_url = process.env.CLOUDINARY_CLOUD_NAME ? req.file.path : '/uploads/products/' + req.file.filename;
+        }
         const stockVal = stock !== undefined && stock !== '' ? parseInt(stock) : -1;
 
         const [result] = await pool.query(
@@ -196,7 +199,7 @@ router.put('/products/:id', upload.single('image'), async (req, res) => {
 
         let image_url = old.image_url;
         if (req.file) {
-            image_url = req.file.path; // URL của Cloudinary
+            image_url = process.env.CLOUDINARY_CLOUD_NAME ? req.file.path : '/uploads/products/' + req.file.filename;
             // TODO: (Tùy chọn) Có thể gọi API Xóa ảnh cũ trên Cloudinary (destroy)
             // nhưng để đơn giản cho dự án nhỏ, chúng ta cứ để ảnh cũ đó hoặc bạn
             // có thể xoá tay trên dashboard Cloudinary nếu muốn tiết kiệm dung lượng.

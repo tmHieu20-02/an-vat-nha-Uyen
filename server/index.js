@@ -61,7 +61,7 @@ app.use('/api/auth/register', rateLimit({
 }));
 
 // Serve uploaded images
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ── Health check ─────────────────────────────────────────────
 app.get('/', (req, res) => {
