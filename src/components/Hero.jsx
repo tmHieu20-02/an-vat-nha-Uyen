@@ -105,15 +105,15 @@ export default function Hero() {
                     </div>
                     <div className="hero-floating-cards">
                         <div className="f-card f-card--1">
-                            <img src="https://images.unsplash.com/photo-1526367790999-0150786686a2?w=40&h=40&fit=crop&q=90" alt="Giao nhanh" className="f-card-img" />
+                            <div className="f-card-icon f-icon-1">🛵</div>
                             Giao nhanh 2h
                         </div>
                         <div className="f-card f-card--2">
-                            <img src="https://images.unsplash.com/photo-1444418776041-9c7e33cc5a9c?w=40&h=40&fit=crop&q=90" alt="Chất lượng" className="f-card-img" />
+                            <div className="f-card-icon f-icon-2">✨</div>
                             Đảm bảo chất lượng
                         </div>
                         <div className="f-card f-card--3">
-                            <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=40&h=40&fit=crop&q=90" alt="Quà tặng" className="f-card-img" />
+                            <div className="f-card-icon f-icon-3">🎁</div>
                             Quà tặng kèm
                         </div>
                     </div>
